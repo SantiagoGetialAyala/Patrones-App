@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Rutinas</title>
+    <style>
+        /* Reset de estilos básicos */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Tipografía y colores generales */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f3;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Estilos del header */
+        header {
+            background-color: #28a745;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Contenedor principal */
+        main {
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Estilos de formularios */
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select, button {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input:focus, select:focus, button:focus {
+            outline: none;
+            border-color: #28a745;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+        }
+
+        button {
+            margin-top: 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Secciones de información */
+        .info-section {
+            margin-top: 30px;
+        }
+
+        .info-section h2 {
+            margin-bottom: 15px;
+            color: #28a745;
+        }
+
+        .info-section ul {
+            list-style: none;
+        }
+
+        .info-section li {
+            background-color: #f9f9f9;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-left: 5px solid #28a745;
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-section li.completed span {
+            text-decoration: line-through;
+            color: #28a745;
+        }
+
+        .info-section li button {
+            background-color: #dc3545;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 3px;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .info-section li button:hover {
+            background-color: #c82333;
+        }
+
+        /* Responsividad */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            button {
+                padding: 10px;
+            }
+
+            .info-section li {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .info-section li button {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Gestión de Rutinas Personalizadas</h1>
+</header>
+
+<main>
+    <div class="container">
+        <h2>Agregar Perfil y Actividad</h2>
+        <form id="activityForm">
+            <label for="name">Nombre:</label>
+            <input type="text" id="name" name="name" placeholder="Ingresa tu nombre" required>
+
+            <label for="weight">Peso (kg):</label>
+            <input type="number" id="weight" name="weight" placeholder="Ejemplo: 70.5" step="0.1" required>
+
+            <label for="height">Estatura (m):</label>
+            <input type="number" id="height" name="height" placeholder="Ejemplo: 1.75" step="0.01" required>
+
+            <label for="age">Edad (años):</label>
+            <input type="number" id="age" name="age" placeholder="Ejemplo: 28" required>
+
+            <label for="availability">Disponibilidad:</label>
+            <select id="availability" name="availability" required>
+                <option value="" disabled selected>Selecciona una opción</option>
+                <option value="Uno">Uno día a la semana</option>
+                <option value="Dos">Dos días a la semana</option>
+                <option value="Tres">Tres días a la semana</option>
+                <option value="Cuatro">Cuatro días a la semana</option>
+                <option value="Todos">Todos los días</option>
+            </select>
+
+            <button type="submit">Crear Perfil y Agregar Actividad</button>
+        </form>
+
+        <div class="info-section">
+            <h2>Información del Usuario</h2>
+            <ul id="userInfo"></ul>
+        </div>
+
+        <div class="info-section">
+            <h2>Rutina Recomendada</h2>
+            <ul id="routineList"></ul>
+        </div>
+    </div>
+</main>
+
+<script>
+    const activityForm = document.getElementById('activityForm');
+    const userInfo = document.getElementById('userInfo');
+    const routineList = document.getElementById('routineList');
+
+    activityForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Obtener valores del formulario
+        const name = document.getElementById('name').value.trim();
+        const weight = parseFloat(document.getElementById('weight').value);
+        const height = parseFloat(document.getElementById('height').value);
+        const age = parseInt(document.getElementById('age').value);
+        const availability = document.getElementById('availability').value;
+
+        // Validar disponibilidad
+        let daysAvailable;
+        switch(availability) {
+            case "Uno":
+                daysAvailable = 1;
+                break;
+            case "Dos":
+                daysAvailable = 2;
+                break;
+            case "Tres":
+                daysAvailable = 3;
+                break;
+            case "Cuatro":
+                daysAvailable = 4;
+                break;
+            case "Todos":
+                daysAvailable = 7;
+                break;
+            default:
+                daysAvailable = 3;
+        }
+
+        // Calcular IMC
+        const bmi = (weight / (height * height)).toFixed(2);
+
+        // Generar recomendaciones basadas en el IMC
+        let recommendations = [];
+        if (bmi < 18.5) {
+            recommendations = ["Ganar masa muscular con pesas.", "Rutina de fuerza 3 veces por semana.", "Dieta rica en proteínas."];
+        } else if (bmi >= 18.5 && bmi < 24.9) {
+            recommendations = ["Mantener con ejercicios de cardio.", "Rutina de resistencia 4 veces por semana.", "Dieta balanceada con control calórico."];
+        } else {
+            recommendations = ["Pérdida de peso con ejercicios aeróbicos.", "Rutina HIIT 5 veces por semana.", "Dieta baja en calorías y grasas."];
+        }
+
+        // Mostrar información del usuario
+        userInfo.innerHTML = `
+            <li><strong>Nombre:</strong> ${name}</li>
+            <li><strong>Peso:</strong> ${weight} kg</li>
+            <li><strong>Estatura:</strong> ${height} m</li>
+            <li><strong>Edad:</strong> ${age} años</li>
+            <li><strong>Disponibilidad:</strong> ${availability} días a la semana</li>
+            <li><strong>Índice de Masa Corporal (IMC):</strong> ${bmi}</li>
+            <li><strong>Recomendaciones:</strong>
+                <ul>
+                    ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                </ul>
+            </li>
+        `;
+
+        // Generar rutina basada en la disponibilidad
+        const routines = generateRoutine(availability);
+        routineList.innerHTML = '';
+        routines.forEach(routine => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <span>${routine}</span>
+                <button onclick="markAsCompleted(this)">Marcar como Completado</button>
+            `;
+            routineList.appendChild(listItem);
+        });
+
+        // Limpiar formulario
+        activityForm.reset();
+    });
+
+    function generateRoutine(availability) {
+        const daysMap = {
+            "Uno": ["Lunes"],
+            "Dos": ["Lunes", "Miércoles"],
+            "Tres": ["Lunes", "Miércoles", "Viernes"],
+            "Cuatro": ["Lunes", "Martes", "Jueves", "Viernes"],
+            "Todos": ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
+        };
+
+        const exercises = ["Cardio", "Fuerza", "Yoga", "HIIT", "Pilates"];
+        const selectedDays = daysMap[availability] || ["Lunes", "Miércoles", "Viernes"];
+        const routine = [];
+
+        selectedDays.forEach(day => {
+            const randomExercise = exercises[Math.floor(Math.random() * exercises.length)];
+            const hours = Math.floor(Math.random() * 2) + 1; // 1 o 2 horas
+            routine.push(`${day}: ${hours} hora(s) de ${randomExercise}`);
+        });
+
+        return routine;
+    }
+
+    function markAsCompleted(button) {
+        const listItem = button.parentElement;
+        listItem.querySelector('span').classList.add('completed');
+        button.remove();
+    }
+</script>
+
+</body>
+</html>
